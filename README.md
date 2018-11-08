@@ -7,7 +7,7 @@ The code in this repository generates passenger arrivals and booking data, and e
 
 
 ## Authors
-* **Nicola Rennie** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+Nicola Rennie
 
 
 ## License
