@@ -10,10 +10,6 @@ The code in this repository generates passenger arrivals and booking data, and e
 Nicola Rennie
 
 
-## License
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-
 ## Acknowledgments
 * Felix Geyer
 * Daniel Kadatz
