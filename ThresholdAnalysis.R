@@ -12,7 +12,7 @@ th <- seq(2000,10000,50)
 fpth1 <- numeric(length=length(th))
 genuineth1 <- numeric(length=length(th))
 dists1 <- eucdistsums(Ybookingsa)
-deft1 <- 0.5*(max(dists1)-min(dists1))
+deft1 <- mean(dists1)+3*sqrt(var(dists1))
 for (i in 1:(length(th))){
   k <- eucdistoutlierdetthresh(dists1,th[i]) 
   fpth1[i] <- fpratedists(k, 501)
@@ -21,7 +21,7 @@ for (i in 1:(length(th))){
 fpth2 <- numeric(length=length(th))
 genuineth2 <- numeric(length=length(th))
 dists2 <- eucdistsums(Mbookingsa)
-deft2 <- 0.5*(max(dists2)-min(dists2))
+deft2 <- mean(dists2)+3*sqrt(var(dists2))
 for (i in 1:(length(th))){
   k <- eucdistoutlierdetthresh(dists2,th[i]) 
   fpth2[i] <- fpratedists(k, 501)
@@ -30,7 +30,7 @@ for (i in 1:(length(th))){
 fpth3 <- numeric(length=length(th))
 genuineth3 <- numeric(length=length(th))
 dists3 <- eucdistsums(Kbookingsa)
-deft3 <- 0.5*(max(dists3)-min(dists3))
+deft3 <- mean(dists3)+3*sqrt(var(dists3))
 for (i in 1:(length(th))){
   k <- eucdistoutlierdetthresh(dists3,th[i]) 
   fpth3[i] <- fpratedists(k, 501)
@@ -39,21 +39,22 @@ for (i in 1:(length(th))){
 fpth4 <- numeric(length=length(th))
 genuineth4 <- numeric(length=length(th))
 dists4 <- eucdistsums(Totbookingsa)
-deft4 <- 0.5*(max(dists4)-min(dists4))
+deft4 <- mean(dists4)+3*sqrt(var(dists4))
 for (i in 1:(length(th))){
   k <- eucdistoutlierdetthresh(dists4,th[i]) 
   fpth4[i] <- fpratedists(k, 501)
   genuineth4[i] <- trueoutdet(k,501)
 }
-d = data.frame(x = th, FPRate = fpth1) 
+par(mfrow=c(2,2))
+d = data.frame(x = th, FPRate = fpth4) 
 par(mar = c(5,5,2,5))
-with(d, plot(x, FPRate, pch=19, col=genuineth1+1, xlab = "Threshold", ylab="Number of False Positives"))
+with(d, plot(x, FPRate, pch=19, col=genuineth4+1, xlab = "Threshold", ylab="Number of False Positives", main = "Total Bookings", cex=1.2, cex.lab=1.2, cex.axis=1.2))
 par(new = T)
 with(d, plot(x, FPRate, type="l", col = "red", axes=F, xlab=NA, ylab=NA, cex=1.2))
-t1 <- thresholdfunc(dists1)
-abline(v=deft1)
-text(3500,50,"Default Threshold")
-legend("topright", legend=c("Outlier Not Detected", "Outlier Detected"), pch=c(19,19), col=c(1, 2))
+abline(v=deft4)
+text(8800,500,"Default Threshold", cex=1.2)
+legend("bottomleft", legend=c("Outlier Not Detected", "Outlier Detected"), pch=c(19,19), col=c(1, 2))
+par(mfrow=c(1,1))
 
 
 ####################################################################################################################################################################
