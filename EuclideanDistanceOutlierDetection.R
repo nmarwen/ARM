@@ -3,27 +3,27 @@ library(TSclust)
 
 #create a function which returns a vector of the sum of Euclidean distances for each time series
 eucdistsums <- function(data){
-  n <- ncol(data)
+  data <- as.matrix(data)
   N <- nrow(data)
   A <- matrix(rep(0, len=N^2), nrow = N)
   for (i in 1:N){
     for (j in 1:N){
       if (i < j){
-        A[i,j] <- diss.EUCL(as.numeric(data[i,2:n]), as.numeric(data[j,2:n]))
+        A[i,j] <- diss.EUCL(as.numeric(data[i,]), as.numeric(data[j,]))
       }
     }
   }
   A <- A + t(A)
   return(colSums(A))
 }
-eucdistsums(Ybookingsa)
+eucdistsums(Ybookingsa[,2:31])
 
 
 #create a function which calculates threshold based on k-means threshold
 thresholdfunc <- function(dists){
   return(mean(dists)+3*sqrt(var(dists)))
 }
-threshold(eucdistsums(Ybookingsa))
+threshold(eucdistsums(Ybookingsa[,2:31]))
 
 
 #create a function which determines the outliers
@@ -38,20 +38,20 @@ eucdistoutlierdet(Ybookingsa)
 ##############################################################################################################################################################################################
 
 #Apply algorithm to a single outlier resulting from type 1 increase
-eucdistoutlierdet(Ybookingsa)
-eucdistoutlierdet(Mbookingsa)
-eucdistoutlierdet(Kbookingsa)
-eucdistoutlierdet(Totbookingsa)
+eucdistoutlierdet(Ybookingsa[,2:31])
+eucdistoutlierdet(Mbookingsa[,2:31])
+eucdistoutlierdet(Kbookingsa[,2:31])
+eucdistoutlierdet(Totbookingsa[,2:31])
 
 
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################
 
 #Apply algorithm to a single outlier resulting from type 1 and type 2 increase
-eucdistoutlierdet(Ybookingsb)
-eucdistoutlierdet(Mbookingsb)
-eucdistoutlierdet(Kbookingsb)
-eucdistoutlierdet(Totbookingsb)
+eucdistoutlierdet(Ybookingsb[,2:31])
+eucdistoutlierdet(Mbookingsb[,2:31])
+eucdistoutlierdet(Kbookingsb[,2:31])
+eucdistoutlierdet(Totbookingsb[,2:31])
 
 
 ##############################################################################################################################################################################################
@@ -77,10 +77,10 @@ for (i in 1:25){
   Totbookingsm <-  Ybookingsm[,2:31] + Mbookingsm[,2:31] + Kbookingsm[,2:31] 
   lab <- rep("Tot",nrow(Totbookingsm))
   Totbookingsm <- cbind(lab, Totbookingsm)
-  ky <- eucdistoutlierdet(Ybookingsm)
-  km <- eucdistoutlierdet(Mbookingsm)
-  kk <- eucdistoutlierdet(Kbookingsm)
-  ktot <- eucdistoutlierdet(Totbookingsm)
+  ky <- eucdistoutlierdet(Ybookingsm[,2:31])
+  km <- eucdistoutlierdet(Mbookingsm[,2:31])
+  kk <- eucdistoutlierdet(Kbookingsm[,2:31])
+  ktot <- eucdistoutlierdet(Totbookingsm[,2:31])
   gens <- (501):(500+i)
   multifpratesY <- c(multifpratesY, multifprate(ky, gens, (500+i)))
   multigenuineY <- c(multigenuineY, multidetrate(ky, gens))
@@ -92,14 +92,14 @@ for (i in 1:25){
   multigenuineTot <- c(multigenuineTot, multidetrate(ktot, gens))
 }
 par(mfrow = c(2,2))
-d = data.frame(x = 1:25, GenRate = multigenuineM, FPRate = multifpratesY) 
+d = data.frame(x = 1:25, GenRate = multigenuineTot, FPRate = multifpratesTot) 
 par(mar = c(5,5,2,5))
-with(d, plot(x, GenRate, type="l", col="black", xlab = "Number of Outliers", ylab="% of Genuine Outliers Detected", main = "Fare Class Y", cex.lab=1.2, cex.axis = 1.2, cex=1.2))
+with(d, plot(x, GenRate, type="l", col="black", xlab = "Number of Outliers", ylab="% of Genuine Outliers Detected", main = "Total Bookings", cex.lab=1.2, cex.axis = 1.2, cex=1.2))
 par(new = T)
 with(d, plot(x, FPRate, type="l", col = "red", axes=F, xlab=NA, ylab=NA, cex=1.2))
 axis(side = 4, cex.axis = 1.2)
 mtext(side = 4, line = 3, '% of Observations False Positives')
-legend("right", legend=c("Detection Rate", "False Positive Rate"), lty=c(1,1), col=c("black", "red", 1, 2))
+legend("top", legend=c("Detection Rate", "False Positive Rate"), lty=c(1,1), col=c("black", "red", 1, 2))
 
 
 ##############################################################################################################################################################################################
@@ -120,10 +120,10 @@ for (i in 1:25){
   Mbookingsm <- Mbookingsd[1:(500+i),]
   Kbookingsm <- Kbookingsd[1:(500+i),]
   Totbookingsm <-  Totbookingsd[1:(500+i),]
-  ky <- eucdistoutlierdet(Ybookingsm)
-  km <- eucdistoutlierdet(Mbookingsm)
-  kk <- eucdistoutlierdet(Kbookingsm)
-  ktot <- eucdistoutlierdet(Totbookingsm)
+  ky <- eucdistoutlierdet(Ybookingsm[,2:31])
+  km <- eucdistoutlierdet(Mbookingsm[,2:31])
+  kk <- eucdistoutlierdet(Kbookingsm[,2:31])
+  ktot <- eucdistoutlierdet(Totbookingsm[,2:31])
   gens <- (501):(500+i)
   multifpratesY <- c(multifpratesY, multifprate(ky, gens, (500+i)))
   multigenuineY <- c(multigenuineY, multidetrate(ky, gens))
@@ -142,7 +142,4 @@ par(new = T)
 with(d, plot(x, FPRate, type="l", col = "red", axes=F, xlab=NA, ylab=NA, cex=1.2))
 axis(side = 4, cex.axis = 1.2)
 mtext(side = 4, line = 3, '% of Observations False Positives')
-legend("left", legend=c("Detection Rate", "False Positive Rate"), lty=c(1,1), col=c("black", "red", 1, 2))
-
-
-
+legend("top", legend=c("Detection Rate", "False Positive Rate"), lty=c(1,1), col=c("black", "red", 1, 2))
