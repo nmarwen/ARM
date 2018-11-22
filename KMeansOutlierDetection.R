@@ -122,3 +122,48 @@ with(d, plot(x, FPRate, type="l", col = "red", axes=F, xlab=NA, ylab=NA, cex=1.2
 axis(side = 4, cex.axis = 1.2)
 mtext(side = 4, line = 3, '% of Observations False Positives')
 legend("left", legend=c("Detection Rate", "False Positive Rate"), lty=c(1,1), col=c("black", "red", 1, 2))
+
+
+##############################################################################################################################################################################################
+##############################################################################################################################################################################################
+
+
+#Retest on a single outlier but rerun 100 different times (100 different outliers)
+detsy <- 0
+fpsy <- 0
+detsm <- 0
+fpsm <- 0
+detsk <- 0
+fpsk <- 0
+detstot <- 0
+fpstot <- 0
+for (i in 1:100){
+  #simulate outlier
+  nplfsim(n=1,BH=30,mu=180,L=0.01,C=200,SLFs=c(1,0.45,0.25),segments1=c(10,10,10),rates1=c(40,50,80),segments2=c(15,10,5),rates2=c(5,35,50),p1=0.85,p2=0.65,s=i,name="outtest")
+  outtest <- read.csv("outtest.csv", header=TRUE, stringsAsFactors = FALSE)
+  #join data to outlier and split by fare class
+  daty <- rbind(Ybookings,outtest[1,])
+  datm <- rbind(Mbookings,outtest[2,])
+  datk <- rbind(Kbookings,outtest[3,])
+  dattot <- daty[,2:31] + datm[,2:31] + datk[,2:31] 
+  lab <- rep("Tot",501)
+  dattot <- cbind(lab, dattot)
+  #run outlier detection
+  ky <- outlierdet1(daty[,2:31],4)
+  km <- outlierdet1(datm[,2:31],4)
+  kk <- outlierdet1(datk[,2:31],4)
+  ktot <- outlierdet1(dattot[,2:31],4)
+  #calculate detection rate and false positive rate 
+  fpsy = fpsy + fpratedists(ky,501)
+  detsy = detsy + trueoutdet(ky,501)
+  fpsm = fpsm + fpratedists(km,501)
+  detsm = detsm + trueoutdet(km,501)
+  fpsk = fpsk + fpratedists(kk,501)
+  detsk = detsk + trueoutdet(kk,501)
+  fpstot = fpstot + fpratedists(ktot,501)
+  detstot = detstot + trueoutdet(ktot,501)
+}
+fpsy <- fpsy/100 
+fpsm <- fpsm/100
+fpsk <- fpsk/100
+fpstot <- fpstot/100
