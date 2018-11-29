@@ -19,7 +19,7 @@ plfsimulation <- function(BH,mu,L,C,SLFs,segments1,rates1,segments2,rates2,p1,p2
     #Cust1 arrivals
     if ((sum(c(Y,M,K)) + Cust1[i]) < SLFs[2]*C){ 
       M[i] <- Cust1[i]
-    }
+    } 
     else if ((sum(c(Y,M,K)) < SLFs[2]*C)){
       M[i] <- SLFs[2]*C - sum(c(Y,M,K))
       #print(c("M",i))
@@ -46,20 +46,22 @@ plfsimulation <- function(BH,mu,L,C,SLFs,segments1,rates1,segments2,rates2,p1,p2
       #print(c("M",i))
     }
   }
+  Total <- Y+M+K
   #Return the number of bookings made on each day
-  return(matrix(c(aggBH(Y,BH),aggBH(M,BH),aggBH(K,BH)),ncol=3))
+  #return(list(Y=aggBH(Y,BH),M=aggBH(M,BH),K=aggBH(K,BH),Total=aggBH(Total,BH), Demand=aggBH(Cust1,BH)+aggBH(Cust2,BH)))
+  return(matrix(c(aggBH(Y,BH),aggBH(M,BH),aggBH(K,BH),aggBH(Total,BH)),ncol=4))
 }
-plfsimulation(BH=30,mu=180,L=0.01,C=200,SLFs=c(1,0.6,0.25),segments1=c(10,10,10),rates1=c(20,30,40),segments2=c(15,10,5),rates2=c(5,35,50),p1=0.75,p2=0.65)
+plfsimulation(BH=30,mu=180,L=0.01,C=200,SLFs=c(1,0.45,0.25),segments1=c(10,10,10),rates1=c(20,30,40),segments2=c(15,10,5),rates2=c(5,35,50),p1=0.75,p2=0.65)
 
 
 #Write a function that runs the above simulation n times and writes the results to a csv file
 nplfsim <- function(n,BH,mu,L,C,SLFs,segments1,rates1,segments2,rates2,p1,p2,s,name){
   k <- plfsimulation(BH,mu,L,C,SLFs,segments1,rates1,segments2,rates2,p1,p2)
-  colnames(k) <- c("Y","M","K")
+  colnames(k) <- c("Y","M","K", "Total")
   km <- t(k)
   for (i in 2:n){
     k <- plfsimulation(BH,mu,L,C,SLFs,segments1,rates1,segments2,rates2,p1,p2)
-    colnames(k) <- c("Y","M","K")
+    colnames(k) <- c("Y","M","K", "Total")
     km <- rbind(km,t(k))
   }
   #return(km)
@@ -67,4 +69,4 @@ nplfsim <- function(n,BH,mu,L,C,SLFs,segments1,rates1,segments2,rates2,p1,p2,s,n
   filename <- paste(name, ".csv", sep="") 
   write.csv(km, filename, row.names=T)
 }
-nplfsim(n=500,BH=30,mu=180,L=0.01,C=200,SLFs=c(1,0.4,0.25),segments1=c(10,10,10),rates1=c(20,30,60),segments2=c(15,10,5),rates2=c(5,35,50),p1=0.85,p2=0.65,s=12345,name="sim02")
+nplfsim(n=500,BH=30,mu=180,L=0.01,C=200,SLFs=c(1,0.45,0.25),segments1=c(10,10,10),rates1=c(20,30,60),segments2=c(15,10,5),rates2=c(5,35,50),p1=0.85,p2=0.65,s=12345,name="sim02")
