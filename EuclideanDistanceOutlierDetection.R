@@ -16,7 +16,7 @@ eucdistsums <- function(data){
   A <- A + t(A)
   return(colSums(A))
 }
-eucdistsums(Ybookingsa[,2:31])
+eucdistsums2(Ybookingsa[,2:31])
 
 
 #create a function which calculates threshold based on k-means threshold
@@ -28,10 +28,12 @@ threshold(eucdistsums(Ybookingsa[,2:31]))
 
 #create a function which determines the outliers
 eucdistoutlierdet <- function(data){
-  dists <- eucdistsums(data)
+  dists <- eucdistsums2(data)
   return(which(dists >= thresholdfunc(dists)))
 }
-eucdistoutlierdet(Ybookingsa)
+eucdistoutlierdet(Ybookingsa[,2:31])
+
+
 
 
 ##############################################################################################################################################################################################
@@ -71,12 +73,10 @@ multigenuineTot <- numeric(0)
 for (i in 1:25){
   nplfsim(n=i,BH=30,mu=180,L=0.01,C=200,SLFs=c(1,0.45,0.25),segments1=c(10,10,10),rates1=c(40,50,80),segments2=c(15,10,5),rates2=c(15,50,60),p1=0.85,p2=0.65,s=12345,name="multi")
   multi <- read.csv("multi.csv", header=TRUE, stringsAsFactors = FALSE)
-  Ybookingsm <- rbind(Ybookings,multi[seq(1, nrow(multi), 3),])
-  Mbookingsm <- rbind(Mbookings,multi[seq(2, nrow(multi), 3),])
-  Kbookingsm <- rbind(Kbookings,multi[seq(3, nrow(multi), 3),])
-  Totbookingsm <-  Ybookingsm[,2:31] + Mbookingsm[,2:31] + Kbookingsm[,2:31] 
-  lab <- rep("Tot",nrow(Totbookingsm))
-  Totbookingsm <- cbind(lab, Totbookingsm)
+  Ybookingsm <- rbind(Ybookings,multi[seq(1, nrow(multi), 4),])
+  Mbookingsm <- rbind(Mbookings,multi[seq(2, nrow(multi), 4),])
+  Kbookingsm <- rbind(Kbookings,multi[seq(3, nrow(multi), 4),])
+  Totbookingsm <-  rbind(Totbookings,multi[seq(4, nrow(multi), 4),])
   ky <- eucdistoutlierdet(Ybookingsm[,2:31])
   km <- eucdistoutlierdet(Mbookingsm[,2:31])
   kk <- eucdistoutlierdet(Kbookingsm[,2:31])
@@ -91,15 +91,16 @@ for (i in 1:25){
   multifpratesTot <- c(multifpratesTot, multifprate(ktot, gens, (500+i)))
   multigenuineTot <- c(multigenuineTot, multidetrate(ktot, gens))
 }
-par(mfrow = c(2,2))
-d = data.frame(x = 1:25, GenRate = multigenuineTot, FPRate = multifpratesTot) 
-par(mar = c(5,5,2,5))
-with(d, plot(x, GenRate, type="l", col="black", xlab = "Number of Outliers", ylab="% of Genuine Outliers Detected", main = "Total Bookings", cex.lab=1.2, cex.axis = 1.2, cex=1.2))
-par(new = T)
-with(d, plot(x, FPRate, type="l", col = "red", axes=F, xlab=NA, ylab=NA, cex=1.2))
-axis(side = 4, cex.axis = 1.2)
-mtext(side = 4, line = 3, '% of Observations False Positives')
-legend("top", legend=c("Detection Rate", "False Positive Rate"), lty=c(1,1), col=c("black", "red", 1, 2))
+
+d1 = data.frame(x = 1:25, GenRate = multigenuineTot, FPRate = multifpratesTot)
+p1 <- ggplot(data = d1, aes(x = x)) + geom_line(size=1,aes(y = GenRate, linetype="Detection Rate")) + 
+  geom_line(size=1,aes(y = FPRate*15, linetype = "False Positive Rate")) + 
+  scale_colour_manual("", values = c("Detection Rate" = "black", "False Positive Rate" = "red")) + 
+  labs(x = "Number of Outliers", y="% of Genuine Outliers Detected") + scale_y_continuous(sec.axis = sec_axis(~./15, name = "% of Observations False Positives")) + 
+  theme(axis.text=element_text(size=14),axis.title=element_text(size=14),legend.text=element_text(size=14),plot.background = element_rect(fill = "transparent", color = NA),legend.background = element_rect(color = NA,fill="transparent"),legend.box.background = element_rect(fill = "transparent",color=NA),legend.position=c(0.67,1),legend.justification=c(0,1),legend.title=element_blank(),legend.key = element_blank())
+p1
+ggsave(p1, filename = "EucDistMulti1Tot.png",  bg = "transparent")
+
 
 
 ##############################################################################################################################################################################################
@@ -134,15 +135,15 @@ for (i in 1:25){
   multifpratesTot <- c(multifpratesTot, multifprate(ktot, gens, (500+i)))
   multigenuineTot <- c(multigenuineTot, multidetrate(ktot, gens))
 }
-par(mfrow = c(2,2))
-d = data.frame(x = 1:25, GenRate = multigenuineTot, FPRate = multifpratesTot) 
-par(mar = c(5,5,2,5))
-with(d, plot(x, GenRate, type="l", col="black", xlab = "Number of Outliers", ylab="% of Genuine Outliers Detected", main = "Total Bookings", cex.lab=1.2, cex.axis = 1.2, cex=1.2))
-par(new = T)
-with(d, plot(x, FPRate, type="l", col = "red", axes=F, xlab=NA, ylab=NA, cex=1.2))
-axis(side = 4, cex.axis = 1.2)
-mtext(side = 4, line = 3, '% of Observations False Positives')
-legend("top", legend=c("Detection Rate", "False Positive Rate"), lty=c(1,1), col=c("black", "red", 1, 2))
+
+d1 = data.frame(x = 1:25, GenRate = multigenuineTot, FPRate = multifpratesTot)
+p1 <- ggplot(data = d1, aes(x = x)) + geom_line(size=1,aes(y = GenRate, linetype="Detection Rate")) + 
+  geom_line(size=1,aes(y = FPRate*15, linetype = "False Positive Rate")) + 
+  scale_colour_manual("", values = c("Detection Rate" = "black", "False Positive Rate" = "red")) + 
+  labs(x = "Number of Outliers", y="% of Genuine Outliers Detected") + scale_y_continuous(sec.axis = sec_axis(~./15, name = "% of Observations False Positives")) + 
+  theme(axis.text=element_text(size=14),axis.title=element_text(size=14),legend.text=element_text(size=14),plot.background = element_rect(fill = "transparent", color = NA),legend.background = element_rect(color = NA,fill="transparent"),legend.box.background = element_rect(fill = "transparent",color=NA),legend.position=c(0.67,1),legend.justification=c(0,1),legend.title=element_blank(),legend.key = element_blank())
+p1
+ggsave(p1, filename = "EucDistMulti2Tot.png",  bg = "transparent")
 
 
 ##############################################################################################################################################################################################
